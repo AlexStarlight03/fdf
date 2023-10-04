@@ -6,41 +6,47 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 10:42:11 by adube             #+#    #+#             */
-/*   Updated: 2023/09/21 13:30:56 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/04 14:42:19 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fdf.h"
+#include "../include/fdf.h"
+
+
 
 void	check_ext(char *ext, char *file)
 {
 	int	i;
+	int	y;
 	i = 0;
+	y = 0;
 	
-	while (file[i] != ".")
+	while (file[i] != '.')
 		i++;
-	while (file[i] == ext[y] && file[i] != "\0" && ext[y] != "\0")
+	while ((file[i] == ext[y]) && file[i] != '\0' && ext[y] != '\0')
 	{
 		i++;
 		y++;
 	}
-	if (file[i] == "\0" && ext[y] == "\0")
+	if (file[i] == '\0' && ext[y] == '\0')
 		return ;
-	get_err(INVALID_MAP_EXT);
+	exit(EXIT_FAILURE);
 }
 
-t_point	**alloc_tab(int fd)
+t_point	**alloc_tab(char *file)
 {
-	char	**map;
+	t_point	**map;
 	char	*str;
 	int		y;
 	int		x;
+	int		fd;
 
-	y = 1;
+	fd = open(file, O_RDONLY);
+	y = 0;
 	str = get_next_line(fd);
 	if (!str)
-		get_error(INVALID_MAP_ERROR);
-	x = nb_words(str, ' ');
+		mlx_err(INVALID_MAP_ERR);
+	x = find_width(str, ' ');
 	while (str)
 	{
 		y++;
@@ -56,36 +62,38 @@ t_point	**alloc_tab(int fd)
 	return (map);
 }
 
-int	get_points(char *line, char **map, int y)
+int	get_points(char *line, t_point **map, int y)
 {
 	char	**points;
 	int		x;
 
-	points = split(line, ' ');
+	points = ft_split(line, ' ');
 	x = 0;
 	while (points[x])
 	{
-		number_valid(points[x]);
 		map[y][x].z = ft_atoi(points[x]);
 		map[y][x].x = x;
 		map[y][x].y = y;
-		map[y][x].color = get_color(*(points + x));
 		map[y][x].last = 0;
+		
 	}
 	free(points);
+	free(line);
 	map[y][x--].last = 1;
 	return (x);	
 }
 
-int	points_line(int fd, char **map)
+int	points_line(char *file, t_point **map)
 {
 	char	*line;
 	int		y;
+	int		fd;
 
+	fd = open(file, O_RDONLY);
 	y = 0;
 	line = get_next_line(fd);
 	if (!line)
-		get_err(INVALID_MAP_ERR);
+		mlx_err(INVALID_MAP_ERR);
 	while (line)
 	{
 		get_points(line, map, y++);
@@ -94,31 +102,21 @@ int	points_line(int fd, char **map)
 	}
 	if (line)
 		free(line);
+	map[y] = 0;
+	close (fd);
 	return (y);
 }
 
 t_point	**get_map(char *file)
 {
-	char	*path;
-	int		fd;
-	char	**map;
+	t_point	**map;
 	int		y;
 
 	check_ext(".fdf", file);
-	path = ft_strjoin("./map", file);
-	fd = open(path, O_RDONLY);
-	ft_free(path);
-	if (fd == -1)
-	{
-		fd = open(file, O_RDONLY);
-		if (fd == -1)
-			get_err(INVALID_MAP_ERROR);
-	}
-	map = alloc_tab(fd);
-	y = points_line(fd, map);
+	map = alloc_tab(file);
+	y = points_line(file, map);
 	if (map[y])
 		free(map[y]);
 	map[y] = NULL;
-	close(fd);
 	return (map);
 }

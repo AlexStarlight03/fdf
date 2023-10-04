@@ -1,13 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_map_utils.c                                    :+:      :+:    :+:   */
+/*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/21 13:22:55 by adube             #+#    #+#             */
-/*   Updated: 2023/09/21 13:30:57 by adube            ###   ########.fr       */
+/*   Created: 2023/09/27 09:13:31 by adube             #+#    #+#             */
+/*   Updated: 2023/10/04 14:07:58 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fdf.h"
+#include "../include/fdf.h"
+
+void	mlx_err(void *ptr)
+{
+	if (!ptr)
+	{
+		ft_putendl_fd((char *)mlx_strerror(mlx_errno), 2);
+		exit(EXIT_FAILURE);
+	}
+}
