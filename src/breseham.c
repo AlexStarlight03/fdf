@@ -6,7 +6,7 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 13:23:49 by adube             #+#    #+#             */
-/*   Updated: 2023/10/04 14:07:55 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/06 10:41:39 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,7 @@ void	draw_start(t_point **map)
 {
 	int		x;
 	int		y;
-
-	print_menu(map[0][0]);
+	
 	y = 0;
 	while(map[y])
 	{
@@ -72,5 +71,5 @@ void	draw_start(t_point **map)
 		}
 		y++;
 	}
-	mlx_image_to_window(map[0][0].mlx_ptr, map[0][0].img_ptr, 400, 0);
+	//mlx_image_to_window(map[0][0].mlx_ptr, map[0][0].img_ptr, 400, 0);
 }
