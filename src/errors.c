@@ -6,17 +6,42 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 09:13:31 by adube             #+#    #+#             */
-/*   Updated: 2023/10/04 14:07:58 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/10 11:58:44 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/fdf.h"
 
-void	mlx_err(void *ptr)
+void	mlx_err(char *err_mess, int fd)
 {
-	if (!ptr)
+	if (err_mess)
+		ft_putendl_fd(err_mess, 2);
+	if (fd)
+		close (fd);
+	exit(EXIT_FAILURE);
+}
+
+void	clean_exit(t_point *map, char *err_mess)
+{
+	if (map)
 	{
-		ft_putendl_fd((char *)mlx_strerror(mlx_errno), 2);
-		exit(EXIT_FAILURE);
+		if (map->mlx_ptr)
+			mlx_terminate(map->mlx_ptr);
+		if (map->matrix)
+			free_tab(map->matrix, (size_t)map->height);
+		if (map->cam)
+			free(map->cam);
+		if (map->algo)
+			free(map->algo);
+		if (map->coord)
+			free(map->coord);
+		if (map->menu)
+			free(map->menu);
+		free(map);
+	}
+	if (err_mess)
+		mlx_err(err_mess, 2);
+	if (!err_mess)
+		exit(EXIT_SUCCESS);
 	}
 }

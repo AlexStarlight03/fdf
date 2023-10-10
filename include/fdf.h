@@ -6,7 +6,7 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 09:35:07 by adube             #+#    #+#             */
-/*   Updated: 2023/10/06 10:38:37 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/10 11:27:05 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,30 @@
 # include "../lib//MLX42/include/MLX42/MLX42.h"
 # include <math.h>
 
+# define WIDTH 960
+# define HEIGHT 540
+
+# define KNRM "\x1B[m"
+# define KRED "\x1B[31m"
+# define KYEL "\x1B[33m"
+
+
+typedef enum scheme
+{
+	standard,
+	icewindale,
+	phandelver,
+	strahd,
+	avernus,
+}	t_scheme;
+
+typedef enum view
+{
+	iso,
+	top_view,
+}	t_view;
+
+
 typedef struct s_point
 {
 	float	x;
@@ -33,7 +57,7 @@ typedef struct s_point
 	float	z;
 	int		last;
 	
-	int		color;
+	t_scheme	color;
 	int		scale;
 	int		z_scale;
 	int		shift_x;
@@ -42,11 +66,11 @@ typedef struct s_point
 	double	angle;
 	int		win_x;
 	int		win_y;
-	mlx_t	*mlx_ptr;
-	void	*win_ptr;
-
-	char	*adrr;
+	double	height;
+	double	width;
 	mlx_image_t	*img_ptr;
+	keys_t	*keys;
+	mlx_t	*mlx_ptr;
 }			t_point;
 
 # ifndef BUFFER_SIZE
@@ -69,7 +93,7 @@ typedef struct s_point
 
 int	main(int argc, char **argv);
 void	mlx_err(void *ptr);
-t_point	**get_map(char *file);
+void	get_map(t_point *map, char *file);
 int find_color(float a, float b);
 int		set_base(t_point *param);
 void	print_menu(t_point param);

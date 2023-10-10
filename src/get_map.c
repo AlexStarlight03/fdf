@@ -6,7 +6,7 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 10:42:11 by adube             #+#    #+#             */
-/*   Updated: 2023/10/04 14:42:19 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/10 11:58:43 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,61 +62,64 @@ t_point	**alloc_tab(char *file)
 	return (map);
 }
 
-int	get_points(char *line, t_point **map, int y)
-{
-	char	**points;
-	int		x;
-
-	points = ft_split(line, ' ');
-	x = 0;
-	while (points[x])
-	{
-		map[y][x].z = ft_atoi(points[x]);
-		map[y][x].x = x;
-		map[y][x].y = y;
-		map[y][x].last = 0;
-		
-	}
-	free(points);
-	free(line);
-	map[y][x--].last = 1;
-	return (x);	
-}
-
-int	points_line(char *file, t_point **map)
+int	get_info(char *file, t_point *map)
 {
 	char	*line;
-	int		y;
+	int		fd;
+	int		flag;
+
+	
+	flag = 0;
+	fd = open(file, O_RDONLY);
+	while (42)
+	{
+		line = get_next_line(fd);
+		if (line == NULL && flag == 0)
+			exit();
+		if (line == NULL)
+			break ;
+		if (flag == 0)
+			map_width(map, line);
+		free(line);
+		(map->height)++;
+		flag = 42
+	}
+	close (fd);
+}
+s
+void	read_map(char *map, char *file)
+{
+	char	*line;
 	int		fd;
 
+	get_info(map, file);
+	init_matrix(map);
 	fd = open(file, O_RDONLY);
-	y = 0;
-	line = get_next_line(fd);
-	if (!line)
-		mlx_err(INVALID_MAP_ERR);
-	while (line)
+	while (42)
 	{
-		get_points(line, map, y++);
-		free(line);
 		line = get_next_line(fd);
-	}
-	if (line)
+		if (line == NULL)
+			break ;
+		get_points(line, map);
 		free(line);
-	map[y] = 0;
+	}
+	max_height(map);
 	close (fd);
-	return (y);
 }
 
-t_point	**get_map(char *file)
+void	get_map(t_point *map, char *file)
 {
-	t_point	**map;
-	int		y;
+	char	*file_check;
+	int		fd;
 
-	check_ext(".fdf", file);
-	map = alloc_tab(file);
-	y = points_line(file, map);
-	if (map[y])
-		free(map[y]);
-	map[y] = NULL;
-	return (map);
+	file_check = NULL;
+	file_check = ft_strrchr(file, '.');
+	if (!file_check)
+		clean_exit(map, KNYEL"file is invalid\n"KNRM);
+	if (ft_strcmp(file_check, ".fdf") != 0)
+		clean_exit(map, KNYEL"file has invalid extension\n"KNRM);
+	fd = open(file, O_RDONLY);
+	if (fd == -1)
+		clean_exit(map, KNYEL"file doesn't open or doesn't exist\n"KNRM);
+	close (fd);
 }
