@@ -6,7 +6,7 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 09:13:31 by adube             #+#    #+#             */
-/*   Updated: 2023/10/10 11:58:44 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/13 13:09:35 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ void	clean_exit(t_point *map, char *err_mess)
 			free(map->cam);
 		if (map->algo)
 			free(map->algo);
-		if (map->coord)
-			free(map->coord);
+		if (map->pos)
+			free(map->pos);
 		if (map->menu)
 			free(map->menu);
 		free(map);
@@ -43,5 +43,4 @@ void	clean_exit(t_point *map, char *err_mess)
 		mlx_err(err_mess, 2);
 	if (!err_mess)
 		exit(EXIT_SUCCESS);
-	}
 }

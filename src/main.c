@@ -6,7 +6,7 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 10:29:07 by adube             #+#    #+#             */
-/*   Updated: 2023/10/10 11:58:45 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/13 14:45:40 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,35 +22,14 @@ void ft_hook(void* param)
 	
 }
 
-t_point	*ft_init_map(void)
-{
-	static t_point *map;
-
-	if (!map)
-	{
-		map = ft_calloc(sizeof(t_point), 1);
-		map->x = 0;
-		map->y = 0;
-		map->z = INT_MIN;
-		map->height = 0;
-		map->width = 0;
-		map->matrix = 0;
-		map->cam = ft_init_camera();
-		map->algo = ft_init_dda();
-		map->pos= ft_calloc(sizeof(t_line), 1);
-		map->menu = ft_calloc(sizeof(t_menu), 1);
-		
-	}
-}
-
 bool ft_init(t_point *map, char *file)
 {
 	map->mlx_ptr = mlx_init(WIDTH, HEIGHT, file, true);
-	map->img->ptr = mlx_new_image(map->mlx_ptr, WIDTH, HEIGHT);
+	map->img_ptr = mlx_new_image(map->mlx_ptr, WIDTH, HEIGHT);
 	mlx_image_to_window(map->mlx_ptr, map->img_ptr, 300, 0);
 	if (!map->mlx_ptr || !map->img_ptr
 		|| (mlx_image_to_window(map->mlx_ptr, map->img_ptr, 300, 0) == 0))
-			clean_exit(map, KRED"MLX has failes\n"KNRM);
+			clean_exit(map, KRED"MLX has failed\n"KNRM);
 	return (true);
 }
 
@@ -73,5 +52,5 @@ int	main(int argc, char **argv)
 		draw_start(map);
 		mlx_loop(map->mlx_ptr);
 	}
-	clean_exit(map, NULL);
+	clean_exit(map, 0);
 }

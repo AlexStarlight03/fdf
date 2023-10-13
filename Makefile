@@ -6,14 +6,13 @@
 #    By: adube <adube@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/09/21 09:33:12 by adube             #+#    #+#              #
-#    Updated: 2023/10/04 13:01:06 by adube            ###   ########.fr        #
+#    Updated: 2023/10/13 13:42:15 by adube            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME := fdf
-BONUS := fdf_bonus
+NAME = fdf
+BONUS = fdf_bonus
 
-GLFW := -L/Users/$(USER)/.brew/opt/glfw/lib -lglfw
 
 LIBFT := ./lib/libft
 LIBFT_AR := $(LIBFT)/libft.a
@@ -21,30 +20,26 @@ LIBFT_AR := $(LIBFT)/libft.a
 LIBMLX := ./lib/MLX42
 LIBMLX_AR := $(LIBMLX)/build/libmlx42.a
 LIBMLX_FLAGS := -ldl $(GLFW) -pthread -lm
+OPEN_GL		=	-framework Cocoa -framework OpenGL -framework IOKit
+GLFW		=	-lglfw -L "/Users/$$USER/.brew/opt/glfw/lib/"
 
-HEADERS	:= -I ./include -I $(LIBMLX)/include -I $(LIBFT)/include
+HEADER_DIR	=	./include
+HEADER_LIST	=	fdf.h
+HEADER	 	=	$(addprefix $(HEADER_DIR), $(HEADER_LIST))
 
 SRC_DIR := ./src
 OBJ_DIR := ./obj
 
-EXCLUDE_MAIN =	$(SRC_DIR)/main.c \
-				$(SRC_DIR)/key_hooks.c
-EXCLUDE_BONUS =	$(SRC_DIR)/main_bonus.c \
-				$(SRC_DIR)/key_hooks_bonus.c \
-				$(SRC_DIR)/display_movetotal_bonus.c
+SRCS_LIST	=	breseham.c color_scheme.c errors.c main.c get_map.c hooks.c init.c parsing.c position.c utils.c
+SRCS		=	$(addprefix $(SRCS_DIR), $(SRCS_LIST))
 
-# SRC := $(shell find $(SRC_DIR) -iname "*.c")
-SRC_MAIN = $(filter-out $(EXCLUDE_BONUS), $(wildcard $(SRC_DIR)/*.c))
-OBJ_MAIN := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_MAIN))
-
-SRC_BONUS = $(filter-out $(EXCLUDE_MAIN), $(wildcard $(SRC_DIR)/*.c))
-OBJ_BONUS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_BONUS))
+OBJS_LIST	=	$(patsubst %.c, %.o, $(SRCS_LIST))
+OBJS		=	$(addprefix $(OBJS_DIR), $(OBJS_LIST))
 
 CC := gcc
-CFLAGS := -Wextra -Wall -Werror -Wunreachable-code -Ofast
+CFLAGS := -Wextra -Wall -Werror -g
 RM := rm -rf
 
-MK_C := $(MAKE) -C
 
 # *********************************** RULES ********************************** #
 
@@ -87,7 +82,7 @@ $(BONUS): $(OBJ_DIR) $(OBJ_BONUS)
 
 # VALGRIND #
 
-PARAM = test.ber
+PARAM = test.fdf
 
 val: $(NAME)
 	valgrind --leak-check=full \
