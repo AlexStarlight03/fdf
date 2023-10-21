@@ -6,70 +6,70 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 13:23:49 by adube             #+#    #+#             */
-/*   Updated: 2023/10/13 13:06:24 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/18 11:03:48 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/fdf.h"
 
-float	check_neg(float i)
+int	ft_iswhitespace(int c)
 {
-	if (i < 0)
-		return (-i);
-	return (i);
+	if ((9 <= c && c <= 13) || c == 32)
+		return (1);
+	return (0);
 }
 
-float	img_max(float x, float y)
+float	max_float(float x, float y)
 {
-	if (x >= y)
+	if (x > y)
 		return (x);
 	return (y);
 }
 
-void	draw_line(t_point a, t_point b, t_point *map)
+void	line(t_point a, t_point b, t_info *info)
 {
-	float	curr_x;
-	float	curr_y;
+	float	step_x;
+	float	step_y;
 	float	max;
 	int		color;
 
-	params(&a, &b, map);
-	curr_x = b.x - a.x;
-	curr_y = b.y - a.y;
-	max = img_max(check_neg(curr_x), check_neg(curr_y));
-	curr_x /= max;
-	curr_y /= max;
-	color = find_color(map, a, b);
-	while((int)(a.x - b.x) || (int)(a.y - b.y))
+	set_info(&a, &b, info);
+	step_x = b.x - a.x;
+	step_y = b.y - a.y;
+	max = max_float(abs_float_value(step_x), abs_float_value(step_y));
+	step_x /= max;
+	step_y /= max;
+	color = get_color(info, a, b);
+	while ((int)(a.x - b.x) || (int)(a.y - b.y))
 	{
-		mlx_put_pixel((mlx_image_t *)map->a.x, a.y, color);
-		a.x += curr_x;
-		a.y += curr_y;
-		if (a.x > map->win_x || a.y > map->win_y || a.y < 0 || a.x < 0)
+		mlx_pixel_put(info->mlx, info->window, a.x, a.y, color);
+		a.x += step_x;
+		a.y += step_y;
+		if (a.x > info->window_x || a.y > info->window_y || a.y < 0 || a.x < 0)
 			break ;
 	}
 }
 
-void	draw_start(t_point *map)
+void	breseham(t_point **matrix, t_info *info)
 {
-	int		x;
-	int		y;
-	
+	int	y;
+	int	x;
+
 	y = 0;
-	while(map->matrix[y])
+	while (matrix[y])
 	{
 		x = 0;
 		while (1)
 		{
-			if(map->matrix[y + 1])
-				draw_line(map->matrix[y][x], map->matrix[y + 1][x], map);
-			if(!map->matrix[y][x].last)
-				draw_line(map->matrix[y][x], map->matrix[y][x + 1], map);
-			if(map->matrix[y][x].last)
+			if (matrix[y + 1])
+				line(matrix[y][x], matrix[y + 1][x], info);
+			if (!matrix[y][x].last)
+				line(matrix[y][x], matrix[y][x + 1], info);
+			if (matrix[y][x].last)
 				break ;
-			x++;	
+			x++;
 		}
 		y++;
 	}
-	img_in_window(map);
+	print_menu(info);
 }

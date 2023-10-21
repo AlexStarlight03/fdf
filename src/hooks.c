@@ -5,55 +5,63 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/10 11:08:48 by adube             #+#    #+#             */
-/*   Updated: 2023/10/13 11:00:11 by adube            ###   ########.fr       */
+/*   Created: 2023/10/15 19:34:21 by alexandrine       #+#    #+#             */
+/*   Updated: 2023/10/18 12:50:40 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/fdf.h"
 
-void	ft_colors_hook(t_point *map, keys_t key)
+int	is_key(int key)
 {
-	if (key == MLX_KEY_SPACE)
-		map->color = standard;
-	else if (key == MLX_KEY_1)
-		map->color = earth;
-	else if (key == MLX_KEY_2)
-		map->color = fire;
-	else if (key == MLX_KEY_3)
-		map->color = rainbow;
-	else if (key == MLX_KEY_4)
-		map->color = pastel;
-	draw_start(map);
+	return (key == 24 || key == 69 || key == 27 || key == 78 || \
+	key == 91 || key == 28 || key == 84 || key == 19 || \
+	key == '~' || key == '}' || key == '{' || key == '|' || \
+	key == 87 || key == 23 || key == 86 || key == 21 || \
+	key == 49 || key == 88 || key == 22);
 }
 
-
-void	ft_projection_hook(t_point *map, keys_t key)
+void	do_key(int key, t_info *info)
 {
-	if (key == MLX_KEY_I || key == MLX_KEY_SPACE)
-		map->cam->proj = iso;
-	else if (key == MLX_KEY_T)
-		map->cam->proj= top_view;
-	draw_start(map);
+	if (key == 24 || key == 69)
+		info->scale += 3;
+	if (key == 27 || key == 78)
+		info->scale -= 3;
+	if (key == 91 || key == 28)
+		info->z_scale += 1;
+	if (key == 84 || key == 19)
+		info->z_scale -= 1;
+	if (key == '~')
+		info->shift_y -= 10;
+	if (key == '}')
+		info->shift_y += 10;
+	if (key == '{')
+		info->shift_x -= 10;
+	if (key == '|')
+		info->shift_x += 10;
+	if (key == 49 || key == 87 || key == 23)
+		info->is_iso = !info->is_iso;
+	if (key == 86 || key == 21)
+		info->angle += 0.05;
+	if (key == 88 || key == 22)
+		info->angle -= 0.05;
 }
 
-void	ft_key_hooks(mlx_key_data_t keydata, void *param)
+int	key_info(int key, t_info *info)
 {
-	t_point *map;
-
-	map = (t_point *)param;
-	if (mlx_is_key_down(map->mlx_ptr, MLX_KEY_ESCAPE)
-		|| mlx_is_key_down(map->mlx_ptr, MLX_KEY_Q))
-		clean_exit(map, NULL);
-	if (mlx_is_key_down(map->mlx_ptr, MLX_KEY_I)
-		|| mlx_is_key_down(map->mlx_ptr, MLX_KEY_SPACE)
-		|| mlx_is_key_down(map->mlx_ptr, MLX_KEY_T))
-		ft_projection_hook(map, keydata.key);
-	if (mlx_is_key_down(map->mlx_ptr, MLX_KEY_1)
-		|| mlx_is_key_down(map->mlx_ptr, MLX_KEY_2)
-		|| mlx_is_key_down(map->mlx_ptr, MLX_KEY_3)
-		|| mlx_is_key_down(map->mlx_ptr, MLX_KEY_4)
-		|| mlx_is_key_down(map->mlx_ptr, MLX_KEY_SPACE))
-		ft_colors_hook(map, keydata.key);
-	
+	if (is_key(key))
+	{
+		mlx_clear_window(info->mlx, info->window);
+		do_key(key, info);
+		print_menu(info);
+		breseham(info->matrix, info);
+	}
+	if (key == 6 || key == 7 || key == 0 || key == 1 || key == 3)
+		new_window(key, info);
+	if (key == '5')
+	{
+		mlx_destroy_window(info->mlx, info->window);
+		err_exit(info, 0);
+	}
+	return (0);
 }

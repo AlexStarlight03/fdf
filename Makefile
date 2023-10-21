@@ -6,48 +6,53 @@
 #    By: adube <adube@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/09/21 09:33:12 by adube             #+#    #+#              #
-#    Updated: 2023/10/13 13:42:15 by adube            ###   ########.fr        #
+#    Updated: 2023/10/20 20:21:58 by adube            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = fdf
-BONUS = fdf_bonus
+NAME := fdf
 
+FRAMEWORK :=-framework OpenGL -framework AppKit
 
 LIBFT := ./lib/libft
 LIBFT_AR := $(LIBFT)/libft.a
 
-LIBMLX := ./lib/MLX42
-LIBMLX_AR := $(LIBMLX)/build/libmlx42.a
-LIBMLX_FLAGS := -ldl $(GLFW) -pthread -lm
-OPEN_GL		=	-framework Cocoa -framework OpenGL -framework IOKit
-GLFW		=	-lglfw -L "/Users/$$USER/.brew/opt/glfw/lib/"
+MLX := ./lib/minilibx_macos
+MLX_A := $(MLX)/libmlx.a
 
-HEADER_DIR	=	./include
-HEADER_LIST	=	fdf.h
-HEADER	 	=	$(addprefix $(HEADER_DIR), $(HEADER_LIST))
+HEADERS	:= -I ./include -I $(MLX)/include -I $(LIBFT)/include
 
 SRC_DIR := ./src
+
 OBJ_DIR := ./obj
 
-SRCS_LIST	=	breseham.c color_scheme.c errors.c main.c get_map.c hooks.c init.c parsing.c position.c utils.c
-SRCS		=	$(addprefix $(SRCS_DIR), $(SRCS_LIST))
+SRC_MAIN =	$(SRC_DIR)/main.c \
+				$(SRC_DIR)/hooks.c \
+				$(SRC_DIR)/breseham.c \
+				$(SRC_DIR)/get_map.c \
+				$(SRC_DIR)/utils.c \
+				$(SRC_DIR)/window.c \
+				$(SRC_DIR)/positions.c \
+				$(SRC_DIR)/colors.c \
+				$(SRC_DIR)/parsing_utils.c \
+				$(SRC_DIR)/color_modes.c 
 
-OBJS_LIST	=	$(patsubst %.c, %.o, $(SRCS_LIST))
-OBJS		=	$(addprefix $(OBJS_DIR), $(OBJS_LIST))
+
+OBJ_MAIN := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_MAIN))
 
 CC := gcc
-CFLAGS := -Wextra -Wall -Werror -g
+CFLAGS := -Wextra -Wall -Werror -Wunreachable-code -Ofast -g
 RM := rm -rf
 
+MK_C := $(MAKE) -C
 
 # *********************************** RULES ********************************** #
 
-all: $(LIBMLX_AR) $(LIBFT_AR) $(NAME)
+all: $(MLX_A) $(LIBFT_AR) $(NAME)
 	@echo "-- fdf created --"
 
-$(LIBMLX_AR):
-	@cmake $(LIBMLX) -B $(LIBMLX)/build && $(MK_C) $(LIBMLX)/build -j4
+$(MLX_A):
+	@$(MAKE) -s -C $(MLX) $(FRAMEWORK)
 
 $(LIBFT_AR):
 	@$(MK_C) $(LIBFT)
@@ -56,36 +61,21 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@$(CC) $(CFLAGS) -o $@ -c $< $(HEADERS)
 
 $(NAME): $(OBJ_DIR) $(OBJ_MAIN)
-	@$(CC) $(OBJ_MAIN) $(LIBMLX_AR) $(LIBMLX_FLAGS) $(LIBFT_AR) $(HEADERS) -o $(NAME)
+	@$(CC) $(OBJ_MAIN) $(MLX_A) $(LIBFT_AR) $(HEADERS) -o $(NAME) $(FRAMEWORK)
 
 $(OBJ_DIR):
 	@mkdir $@
 
 clean:
 	@$(RM) $(OBJ_DIR)
-	@$(RM) $(LIBMLX)/build
+	@$(RM) $(MLX)/build
 	@$(MK_C) $(LIBFT) clean
 
 fclean: clean
-	@$(RM) $(NAME) $(BONUS)
+	@$(RM) $(NAME) 
 	@$(MK_C) $(LIBFT) fclean
 
 re: fclean all
 
-bonus: $(LIBMLX_AR) $(LIBFT_AR) $(BONUS)
-	@echo "-- fdf_bonus created --"
-
-$(BONUS): $(OBJ_DIR) $(OBJ_BONUS)
-	@$(CC) $(OBJ_BONUS) $(LIBMLX_AR) $(LIBMLX_FLAGS) $(LIBFT_AR) $(HEADERS) -o $(BONUS)
-
 .PHONY: all, clean, fclean, re, bonus
 
-# VALGRIND #
-
-PARAM = test.fdf
-
-val: $(NAME)
-	valgrind --leak-check=full \
-	--show-leak-kinds=all \
-	--track-origins=yes -s \
-	./$(NAME) $(PARAM)

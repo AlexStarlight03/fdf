@@ -5,56 +5,47 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/04 11:48:41 by adube             #+#    #+#             */
-/*   Updated: 2023/10/13 12:44:29 by adube            ###   ########.fr       */
+/*   Created: 2023/09/21 13:22:55 by adube             #+#    #+#             */
+/*   Updated: 2023/10/20 22:41:12 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/fdf.h"
 
-
-
-int	points_in_line(char *line, t_point *map, int y)
+void	err_exit(t_info *info, char *err_mess)
 {
-	char	**points;
-	int		x;
-
-	if (!line)
-		clean_exit(map, "This map is invalid");
-	points = ft_split(line, ' ');
-	x = 0;
-	while (points[x])
+	if (info && info->matrix != NULL)
+		free_tab(&info->matrix);
+	if (err_mess)
 	{
-		if_valid(points[x]);
-		map->matrix[y][x].z = ft_atoi(points[x]);
-		map->matrix[y][x].x = x;
-		map->matrix[y][x].y = y;
-		map->matrix[y][x].color = find_color(*(points + x));
-		map->matrix[y][x].last = 0;
-		free(points[x++]);
+		ft_putendl_fd(err_mess, 2);
+		exit(1);
 	}
-	free(points);
-	map->matrix[y][--x].last = 1;
-	return (x);
+	exit(0);
 }
 
-int	find_width(char *str, char c)
+void	zoom(t_point *a, t_point *b, t_info *info)
 {
-	int i;
-	int	count;
+	a->x *= info->scale;
+	a->y *= info->scale;
+	b->x *= info->scale;
+	b->y *= info->scale;
+	a->z *= info->z_scale;
+	b->z *= info->z_scale;
+}
 
-	i = 0;
-	count = 0;
-	while (str[i] != '\0' && str[i] != '\n')
+void	set_info(t_point *a, t_point *b, t_info *info)
+{
+	zoom(a, b, info);
+	if (info->is_iso)
 	{
-		while (str[i] != '\0' && (str[i] == c))
-			i++;
-		if (str[i] != '\0' && str[i] != '\n')
-			count++;
-		while (str[i] != '\0' && !(str[i] == c))
-			i++;
+		iso(a, info->angle);
+		iso(b, info->angle);
 	}
-	return (count);
+	a->x += info->shift_x;
+	a->y += info->shift_y;
+	b->x += info->shift_x;
+	b->y += info->shift_y;
 }
 
 void	iso(t_point *point, double angle)
@@ -63,39 +54,16 @@ void	iso(t_point *point, double angle)
 	point->y = (point->x + point->y) * sin(angle) - point->z;
 }
 
-void	scale_all(t_point *a, t_point *b, t_point *param)
+void	print_menu(t_info *info)
 {
-	a->x *= param->scale;
-	a->y *= param->scale;
-	b->x *= param->scale;
-	b->y *= param->scale;
-	a->z *= param->z;
-	b->z *= param->z;
-}
+	char	*menu;
 
-void	params(t_point *a, t_point *b, t_point *param)
-{
-	scale_all(a, b, param);
-	if (param->is_iso)
-	{
-		iso(a, param->angle);
-		iso(b, param->angle);
-	}
-	a->x += param->shift_x;
-	a->y += param->shift_y;
-	b->x += param->shift_x;
-	b->y += param->shift_y;
-}
-
-int find_color(t_point *map, float a, float b)
-{
-	int	color;
-
-	if (b || a)
-		color = 0xfc0345;
-	else
-		color = 0xBBFAFF;
-	if ( b != a)
-		color = 0xfc031c;
-	return (color);
+	menu = "up, down, left, right: move picture";
+	mlx_string_put(info->mlx, info->window, 10, 5, 0x03fc35, menu);
+	menu = "5, space: 3d/2d mode; +, -: zoom";
+	mlx_string_put(info->mlx, info->window, 10, 20, 0x03fc35, menu);
+	menu = "8, 2: z-scale; 4, 6: rotation";
+	mlx_string_put(info->mlx, info->window, 10, 35, 0x03fc35, menu);
+	menu = "f: toggle full screen mode";
+	mlx_string_put(info->mlx, info->window, 10, 50, 0x03fc35, menu);
 }

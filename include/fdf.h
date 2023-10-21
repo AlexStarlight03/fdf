@@ -6,187 +6,117 @@
 /*   By: adube <adube@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 09:35:07 by adube             #+#    #+#             */
-/*   Updated: 2023/10/13 13:49:31 by adube            ###   ########.fr       */
+/*   Updated: 2023/10/20 20:02:50 by adube            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FDF_H
 # define FDF_H
 
-#endif
-
 # include <unistd.h>
 # include <stdlib.h>
 # include <stdio.h>
 # include <fcntl.h>
-# include <limits.h>
-# include <time.h>
-# include "../lib/libft/libft.h"
-# include "../lib//MLX42/include/MLX42/MLX42.h"
 # include <math.h>
-# include <stdbool.h>
+# include "../lib/libft/libft.h"
+# include "../lib/minilibx_macos/mlx.h"
 
-#define bool int
-#define true 1
-#define false 0
-
-
-# define WIDTH 960
-# define HEIGHT 540
-
-# define KNRM "\x1B[m"
-# define KRED "\x1B[31m"
-# define KYEL "\x1B[33m"
-
-typedef enum scheme
-{
-	standard,
-	icewindale,
-	phandelver,
-	strahd,
-	avernus,
-}	t_scheme;
-
-typedef enum view
-{
-	iso,
-	top_view,
-}	t_view;
-
-typedef struct s_menu
-{
-	mlx_image_t		*menu_img;
-	mlx_texture_t	*menu_txt;
-}	t_menu;
-
-typedef struct s_cam
-{
-	t_view	proj;
-	double	zoom;
-}	t_cam;
-
-typedef struct s_algo
-{
-	double	x;
-	double	y;
-	double	delta_x;
-	double	delta_y;
-	double	ptp;
-	double	delta_max;
-	double	pixel;
-}	t_algo;
-
-typedef struct s_line
-{
-	double	sx;
-	double	sy;
-	double	sz;
-	double	ex;
-	double	ey;
-	double	ez;
-	double	proj_sx;
-	double	proj_sy;
-	double	proj_sz;
-	double	proj_ex;
-	double	proj_ey;
-	double	proj_ez;
-}			t_line;
+# define MAX_COLOR_HEX 16777215
+# define VIOLET_HEX 0x8F00FF
+# define YELLOW_HEX 0xFFFF00
+# define BLUE_HEX 0x177E89
 
 typedef struct s_point
 {
-	float	x;
-	float	y;
-	float	z;
-	int		last;
+	float		x;
+	float		y;
+	float		z;
+	int			last;
+	int			color;
+}				t_point;
+
+typedef struct s_img 
+{
+	void	*img;
+	char	*addr;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}			t_img;
+
+typedef struct s_info
+{
+	int			random_color;
+	int			random_color2;
+	int			color_style;
+	int			has_colors;
+	int			map_width;
+	int			scale;
+	int			z_scale;
+	int			shift_x;
+	int			shift_y;
+	int			is_iso;
+	double		angle;
+	t_img		img;
 	t_point		**matrix;
-	
-	t_scheme	color;
-	int		scale;
-	int		z_scale;
-	double		shift_x;
-	double		shift_y;
-	int		is_iso;
-	double	angle;
-	int		win_x;
-	int		win_y;
-	double	height;
-	double	width;
-	t_cam	*cam;
-	t_line	*pos;
-	t_menu	*menu;
-	t_algo	*algo;
-	mlx_image_t	*img_ptr;
-	keys_t	*keys;
-	mlx_t	*mlx_ptr;
-}		t_point;
+	int			window_x;
+	int			window_y;
+	void		*mlx;
+	void		*window;
+}				t_info;
 
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 2
-# define SCALE 40
-# define Z_SCALE 1
-# define IS_ISO 1
-# define ANGLE 0.523599
-# define WIN_X 2000
-# define WIN_Y 1000
-# define SHIFT_X WIN_X / 3
-# define SHIFT_y WIN_Y / 3
+int		ft_iswhitespace(int c);
+float	max_float(float x, float y);
+void	line(t_point a, t_point b, t_info *info);
+void	breseham(t_point **matrix, t_info *info);
 
-# define INPUT_ERR "please enter a valid .fdf map"
-# define MALLOC_ERR "there was an error in the malloc"
-# define FILE_ERR "file was not found"
-# define INVALID_MAP_ERR "the map is invalid"
-# define INVALID_MAP_EXT "please enter a map with .fdf extension"
-# define END_MESS "the program closed successfully"
+int		colors_mode1(t_point a, t_point b);
+int		colors_mode2(t_point a, t_point b);
+int		colors_mode3(t_info *info, t_point a, t_point b);
+int		colors_mode4(t_info *info, t_point a, t_point b);
+int		colors_mode5(t_point a, t_point b);
 
+int		get_color_from_line(char *s);
+void	set_color_styles(t_info *info);
+int		get_random_color(void);
+int		get_random_white_color(void);
+int		get_color(t_info *info, t_point a, t_point b);
 
-//---main--
-int	main(int argc, char **argv);
-bool ft_init(t_point *map, char *file);
-void ft_hook(void* param);
-
-//---color_scheme--
-
-
-//----hooks--
-void	ft_colors_hook(t_point *map, keys_t key)
-void	ft_projection_hook(t_point *map, keys_t key);
-void	ft_key_hooks(mlx_key_data_t keydata, void *param);
-
-//----breseham--
-float	check_neg(float i);
-float	img_max(float x, float y);
-void	draw_line(t_point a, t_point b, t_point *map);
-void	draw_start(t_point *map);
-
-//---errors--
-void	mlx_err(char *err_mess, int fd);
-void	clean_exit(t_point *map, char *err_mess);
-
-//---get_map--
+int		count(char *str);
 void	check_ext(char *ext, char *file);
-void	get_map(t_point *map, char *file);
+t_point	**alloc_tab(char *file);
+int		get_points(char *line, t_point **map, int y);
+t_point	**get_map(char *file);
 
-//---init--
-t_cam	*ft_init_cam(void);
-t_algo	*ft_init_algo(void);
-t_point	*ft_init_map(void);
+int		is_key(int key);
+void	do_key(int key, t_info *info);
+int		key_info(int key, t_info *info);
 
-//---parsing--
-t_point	*alloc_tab(char *file);
-t_point	*get_info(char *file, t_point *map);
+int		map_color(t_point **map);
+int		map_width(t_point **map);
+void	init_start(t_info *info, t_point **map);
+int		main(int argc, char **argv);
 
+int		index_of(char *s, char c);
+int		in_string(char *s, char c);
+int		hex_to_int(char *s);
+int		free_ptr(void **ptr);
+int		free_tab(t_point ***ptab);
 
-//---position--
-int		pos_x(float x, t_point *map);
-int		pos_y(float y, t_point *map);
-void	set_pos(t_point *a, t_point *b, t_point *map);
+int		pos_x(float x, t_info *info);
+int		pos_y(float y, t_info *info);
+float	abs_float_value(float x);
 
-//---utils--
-int	points_in_line(char *line, t_point *map, int y);
-int	find_width(char *str, char c);
+void	err_exit(t_info *info, char *err_mess);
+void	zoom(t_point *a, t_point *b, t_info *info);
+void	set_info(t_point *a, t_point *b, t_info *info);
 void	iso(t_point *point, double angle);
-void	scale_all(t_point *a, t_point *b, t_point *param);
-void	params(t_point *a, t_point *b, t_point *param);
-int find_color(t_point *map, float a, float b);
+void	print_menu(t_info *info);
+
+int		window_size(int key, t_info *info);
+void	full_screen(t_info *info);
+void	change_window_size(int key, t_info *info);
+void	new_window(int key, t_info *info);
+int		exit_window(t_info *info);
 
 #endif
